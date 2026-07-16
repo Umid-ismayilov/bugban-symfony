@@ -27,6 +27,13 @@ class BugbanExtension extends Extension
             'enabled' => isset($config['enabled']) ? $config['enabled'] : true,
             'capture_requests' => isset($config['capture_requests']) ? $config['capture_requests'] : false,
             'sample_rate' => isset($config['sample_rate']) ? $config['sample_rate'] : 1.0,
+            // Metadata for the one-time install ping (SDK handshake).
+            'app_name' => isset($config['app_name']) ? $config['app_name'] : null,
+            'framework' => 'symfony',
+            'framework_version' => defined('Symfony\Component\HttpKernel\Kernel::VERSION')
+                ? \Symfony\Component\HttpKernel\Kernel::VERSION
+                : null,
+            'sdk' => 'bugban/symfony',
         ));
 
         // Register the exception listener as a service (EventSubscriberInterface).

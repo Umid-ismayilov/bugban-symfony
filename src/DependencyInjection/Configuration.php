@@ -21,6 +21,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('api_key')->defaultValue('')->end()
+                ->scalarNode('app_name')->defaultNull()->end()
                 ->scalarNode('host')->defaultValue('https://bugban.online')->end()
                 ->scalarNode('environment')->defaultNull()->end()
                 ->scalarNode('release')->defaultNull()->end()
