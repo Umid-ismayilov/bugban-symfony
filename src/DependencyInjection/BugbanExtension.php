@@ -33,7 +33,7 @@ class BugbanExtension extends Extension
         $container->setDefinition('bugban.exception_listener', $definition);
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'bugban';
     }
