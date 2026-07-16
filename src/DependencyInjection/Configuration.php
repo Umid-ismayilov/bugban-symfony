@@ -27,6 +27,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('release')->defaultNull()->end()
                 ->booleanNode('enabled')->defaultTrue()->end()
                 ->booleanNode('capture_requests')->defaultFalse()->end()
+                ->booleanNode('capture_queries')->defaultTrue()->end()
+                ->integerNode('slow_query_ms')->defaultValue(1000)->end()
                 ->floatNode('sample_rate')->defaultValue(1.0)->end()
             ->end();
 

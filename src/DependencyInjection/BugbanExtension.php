@@ -26,6 +26,8 @@ class BugbanExtension extends Extension
             'release' => isset($config['release']) ? $config['release'] : null,
             'enabled' => isset($config['enabled']) ? $config['enabled'] : true,
             'capture_requests' => isset($config['capture_requests']) ? $config['capture_requests'] : false,
+            'capture_queries' => isset($config['capture_queries']) ? $config['capture_queries'] : true,
+            'slow_query_ms' => isset($config['slow_query_ms']) ? $config['slow_query_ms'] : 1000,
             'sample_rate' => isset($config['sample_rate']) ? $config['sample_rate'] : 1.0,
             // Metadata for the one-time install ping (SDK handshake).
             'app_name' => isset($config['app_name']) ? $config['app_name'] : null,

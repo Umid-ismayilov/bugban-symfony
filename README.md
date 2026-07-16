@@ -49,6 +49,8 @@ bugban:
     # release: '1.0.0'
     # enabled: true
     # capture_requests: false
+    # capture_queries: true
+    # slow_query_ms: 1000
     # sample_rate: 1.0
 ```
 
@@ -87,4 +89,26 @@ Bugban::captureMessage('Something noteworthy happened', 'warning');
 | `release`          | string  | `null`                  |
 | `enabled`          | bool    | `true`                  |
 | `capture_requests` | bool    | `false`                 |
+| `capture_queries`  | bool    | `true`                  |
+| `slow_query_ms`    | int     | `1000`                  |
 | `sample_rate`      | float   | `1.0`                   |
+
+## Slow query monitoring
+
+Doctrine's `SQLLogger` interface was removed in DBAL 4, so the bundle does **not** hook Doctrine automatically. Pick whichever fits your setup (queries faster than `slow_query_ms` are always dropped by the SDK):
+
+- **Doctrine DBAL 2.x / 3.x** — register the bundled logger yourself (e.g. on `kernel.request` or in a decorator):
+
+  ```php
+  if (interface_exists(\Doctrine\DBAL\Logging\SQLLogger::class)) {
+      $connection->getConfiguration()->setSQLLogger(new \Bugban\Symfony\Doctrine\BugbanSqlLogger());
+  }
+  ```
+
+- **Any DBAL version / no Doctrine** — record manually where you run queries:
+
+  ```php
+  \Bugban\Sdk\Bugban::recordQuery($sql, $durationMs, ['connection' => 'mysql', 'bindings' => $params]);
+  ```
+
+- **Plain PDO** — use the drop-in `\Bugban\Sdk\Support\TracedPdo` from the core SDK.
