@@ -2,7 +2,6 @@
 
 namespace Bugban\Symfony\DependencyInjection;
 
-use Bugban\Sdk\Bugban;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -15,8 +14,12 @@ class BugbanExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        // Eagerly initialize the SDK at container-build/boot time.
-        Bugban::init(array(
+        // NOTE: load() only runs when the container is (re)compiled, not on every
+        // request. So we must NOT call Bugban::init() here — the compiled container
+        // is cached and the static SDK client would be lost at runtime. Instead we
+        // store the resolved config as a container parameter and let
+        // BugbanBundle::boot() initialize the SDK on every kernel boot / request.
+        $container->setParameter('bugban._config', array(
             'api_key' => isset($config['api_key']) ? $config['api_key'] : '',
             'host' => isset($config['host']) ? $config['host'] : 'https://bugban.online',
             'environment' => isset($config['environment']) ? $config['environment'] : null,
