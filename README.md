@@ -112,3 +112,30 @@ Doctrine's `SQLLogger` interface was removed in DBAL 4, so the bundle does **not
   ```
 
 - **Plain PDO** — use the drop-in `\Bugban\Sdk\Support\TracedPdo` from the core SDK.
+
+## Log capture (errors logged but not thrown)
+
+Errors you catch and log — but never re-throw — only hit the log file. Enable
+`capture_logs` in the SDK init and forward them to Bugban with `recordLog()`:
+
+```php
+\Bugban\Sdk\Bugban::init([
+    'api_key'      => 'bb_xxxxxxxx',
+    'host'         => 'https://bugban.online',
+    'capture_logs' => true,
+    'log_level'    => 'error', // minimum PSR level forwarded
+]);
+
+// Any framework — from your log pipeline or directly:
+\Bugban\Sdk\Bugban::recordLog('error', 'Import failed', ['file' => $name]);
+
+// Caught-and-logged throwable (attach it for a full stacktrace):
+try { risky(); } catch (\Throwable $e) {
+    \Bugban\Sdk\Bugban::recordLog('error', $e->getMessage(), ['exception' => $e]);
+}
+```
+
+**Monolog** users can register a tiny handler whose `write()` calls
+`Bugban::recordLog($record['level_name'] ?? $record->level->getName(), $record['message'] ?? $record->message, $record['context'] ?? $record->context)`
+(works for Monolog 2 arrays and Monolog 3 `LogRecord`). Records below `log_level`
+are dropped; context is redacted; `recordLog()` never throws.
