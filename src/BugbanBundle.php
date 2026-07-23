@@ -39,6 +39,12 @@ class BugbanBundle extends Bundle
                 return;
             }
             $container = $this->container;
+            // The core SDK may be older than this adapter (stale lock file or a
+            // manual libs/ copy loaded first). Never call into it blindly.
+            if (!method_exists('\\Bugban\\Sdk\\Bugban', 'setQueryRunner')) {
+                return;
+            }
+
             Bugban::setQueryRunner(function ($sql, array $bindings) use ($container) {
                 $conn = $container->get('doctrine.dbal.default_connection');
                 $conn->beginTransaction();
