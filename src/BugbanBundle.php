@@ -45,11 +45,19 @@ class BugbanBundle extends Bundle
                 return;
             }
 
-            Bugban::setQueryRunner(function ($sql, array $bindings) use ($container) {
+            Bugban::setQueryRunner(function ($sql, array $bindings, $returnRows = false) use ($container) {
                 $conn = $container->get('doctrine.dbal.default_connection');
                 $conn->beginTransaction();
                 try {
-                    // DBAL 3/4 renamed fetchAllNumeric(); DBAL 2 has fetchAll().
+                    // EXPLAIN needs column names, so ask for associative rows there.
+                    // DBAL 3/4 renamed the fetch methods; DBAL 2 has fetchAll().
+                    if ($returnRows) {
+                        $rows = method_exists($conn, 'fetchAllAssociative')
+                            ? $conn->fetchAllAssociative($sql, $bindings)
+                            : $conn->fetchAll($sql, $bindings);
+
+                        return is_array($rows) ? $rows : array();
+                    }
                     $rows = method_exists($conn, 'fetchAllNumeric')
                         ? $conn->fetchAllNumeric($sql, $bindings)
                         : $conn->fetchAll($sql, $bindings);
