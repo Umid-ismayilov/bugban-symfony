@@ -9,6 +9,9 @@ use Bugban\Symfony\EventListener\ExceptionListener;
 
 class BugbanExtension extends Extension
 {
+    /** Package version, reported in the SDK ping (keep in step with the core's Bugban::VERSION). */
+    const VERSION = '1.7.4';
+
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -36,6 +39,7 @@ class BugbanExtension extends Extension
                 ? \Symfony\Component\HttpKernel\Kernel::VERSION
                 : null,
             'sdk' => 'bugban/symfony',
+            'sdk_version' => self::VERSION,
         ));
 
         // Register the exception listener as a service (EventSubscriberInterface).
