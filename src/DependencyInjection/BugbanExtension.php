@@ -13,7 +13,7 @@ use Bugban\Symfony\Security\UserResolver;
 class BugbanExtension extends Extension
 {
     /** Package version, reported in the SDK ping (keep in step with the core's Bugban::VERSION). */
-    const VERSION = '1.7.7';
+    const VERSION = '1.7.8';
 
     public function load(array $configs, ContainerBuilder $container)
     {
