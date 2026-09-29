@@ -3,14 +3,17 @@
 namespace Bugban\Symfony\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Bugban\Symfony\EventListener\ExceptionListener;
+use Bugban\Symfony\Security\UserResolver;
 
 class BugbanExtension extends Extension
 {
     /** Package version, reported in the SDK ping (keep in step with the core's Bugban::VERSION). */
-    const VERSION = '1.7.6';
+    const VERSION = '1.7.7';
 
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -47,6 +50,15 @@ class BugbanExtension extends Extension
         $definition->setPublic(false);
         $definition->addTag('kernel.event_subscriber');
         $container->setDefinition('bugban.exception_listener', $definition);
+
+        // Logged-in user for every event, no manual setUser(). Public so
+        // BugbanBundle::boot() can fetch it; the token storage is optional
+        // (null when symfony/security is not installed).
+        $resolver = new Definition(UserResolver::class, array(
+            new Reference('security.token_storage', ContainerInterface::NULL_ON_INVALID_REFERENCE),
+        ));
+        $resolver->setPublic(true);
+        $container->setDefinition('bugban.user_resolver', $resolver);
     }
 
     public function getAlias(): string

@@ -24,6 +24,30 @@ class BugbanBundle extends Bundle
         if ($this->container !== null && $this->container->hasParameter('bugban._config')) {
             Bugban::init($this->container->getParameter('bugban._config'));
             $this->registerQueryRunner();
+            $this->registerUserResolver();
+        }
+    }
+
+    /**
+     * Attach the logged-in user (any firewall) to every event automatically.
+     * The service is fetched lazily on first use, not on every boot.
+     */
+    private function registerUserResolver(): void
+    {
+        try {
+            if ($this->container === null || !method_exists('\\Bugban\\Sdk\\Bugban', 'setUserResolver')) {
+                return;
+            }
+            $container = $this->container;
+            Bugban::setUserResolver(function () use ($container) {
+                if (!$container->has('bugban.user_resolver')) {
+                    return null;
+                }
+                $resolver = $container->get('bugban.user_resolver');
+                return is_callable($resolver) ? $resolver() : null;
+            });
+        } catch (\Throwable $e) {
+            // Monitoring must never break the app.
         }
     }
 
